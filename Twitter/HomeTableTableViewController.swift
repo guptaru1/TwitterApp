@@ -22,18 +22,34 @@ class HomeTableTableViewController: UITableViewController {
             for tweet in tweets{
                 self.tweetArray.append(tweet)
             }
+            print(self.tweetArray)
             self.tableView.reloadData()
             
         }, failure: { (Error) in
             print("Could not receive tweet")
+            print(Error.localizedDescription)
         })
 
     }
 
-  
+    //Gets called everytime wherreeas viewdid load gets called only once
+    override func viewDidAppear(_ animated: Bool) {
+        //Call the masterr class immediately
+        super.viewDidAppear(animated)
+        LoadTweet()
+        
+       
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat { return 150 }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        LoadTweet()
+        //Automatically cualte the height
+        
+        
+        //self.tweetArray.rowHeight = UITableView.automaticDimension
+        //self.tweetArray.estimatedRowHeight = 150
        
     }
 
@@ -55,9 +71,19 @@ class HomeTableTableViewController: UITableViewController {
         let imageUrl = URL(string: (user["profile_image_url_https"] as? String)!)
         let data = try? Data(contentsOf: imageUrl!)
         
+       
+        
         if let imageData = data{
             cell.ProfileImageView.image = UIImage(data: imageData)
         }
+        
+        //Set the favorite if true or not
+        
+        cell.setFavorite(tweetArray[indexPath.row]["favorited"] as! Bool)
+        
+        //Set thetweet id from the tweetcelltableview
+        cell.tweetId = tweetArray[indexPath.row]["id"] as! Int
+        cell.setRetweeted(tweetArray[indexPath.row]["retweeted"] as! Bool)
         
             
         cell.UserNameLabel.text = user["name"] as! String
@@ -68,15 +94,10 @@ class HomeTableTableViewController: UITableViewController {
     }
     // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        
-        return tweetArray.count
-    }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return tweetArray.count
     }
 
     /*
